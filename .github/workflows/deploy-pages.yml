@@ -1,0 +1,37 @@
+name: Build and publish to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+  actions: read
+
+jobs:
+  prepare-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy files into build folder
+        run: |
+          rm -rf build
+          mkdir -p build
+          cp src/index.html build/
+          cp src/scripts.js build/
+          cp -r styles build/
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./build
+
+  deploy:
+    needs: prepare-and-upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
